@@ -1,6 +1,6 @@
 from enum import Enum
 
-Relation = Enum('Relation', ['UP_LEFT', 'UP', 'UP_RIGHT', 'LEFT', 'RIGHT', 'DOWN_LEFT', 'DOWN', 'DOWN_RIGHT'])
+Relation = Enum('Relation', ['UP_LEFT', 'UP', 'UP_RIGHT', 'LEFT', 'RIGHT', 'DOWN_LEFT', 'DOWN', 'DOWN_RIGHT', 'NONE'])
 
 class Point:
     def __init__(self, r: int, c: int):
@@ -13,8 +13,9 @@ class Point:
     def __eq__(self, other):
         return self.r == other.r and self.c == other.c
 
-    # def getRelation(self, first: Point, second: Point) -> Relation:
-    #     return Relation.UP
+    def getRelation(self, first: Point, second: Point) -> Relation:
+        if first.r == second.r:
+            
 
 
 def isValidPoint(puzzle: list[list[str]], point: Point) -> bool:
