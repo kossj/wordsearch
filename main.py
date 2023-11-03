@@ -15,12 +15,29 @@ class Point:
     
     def __eq__(self, other):
         return self.r == other.r and self.c == other.c
+
+    def is_valid(self, puzzle: list[list[str]]) -> bool:
+        return self.r in range(len(puzzle)) and self.c in range(len(puzzle[0]))
+
+    def get_related(self, r: Relation):
+        match r:
+            case Relation.UP:
+                return Point(self.r-1, self.c)
+            case Relation.DOWN:
+                return Point(self.r+1, self.c)
+            case Relation.RIGHT:
+                return Point(self.r, self.c+1)
+            case Relation.LEFT:
+                return Point(self.r, self.c-1)
+            case Relation.UP_LEFT:
+                return Point(self.r-1, self.c-1)
+            case Relation.UP_RIGHT:
+                return Point(self.r-1, self.c+1)
+            case Relation.DOWN_LEFT:
+                return Point(self.r+1, self.c-1)
+            case Relation.DOWN_RIGHT:
+                return Point(self.r+1, self.c+1)
             
-
-
-def is_valid_point(puzzle: list[list[str]], point: Point) -> bool:
-    return point.r in range(len(puzzle)) and point.c in range(len(puzzle[0]))
-
 
 def get_point_value(puzzle: list[list[str]], point: Point) -> str:
     return puzzle[point.r][point.c]
@@ -45,7 +62,17 @@ def get_relation(first: Point, second: Point) -> Relation:
 def try_find(puzzle: list[list[str]], first: Point, relation: Relation, word: list[str]) -> list[Point]:
     """This function will go as far as it can as long as the word matches."""
     # NOTE: If you wanted to make this project work for funky crossword dimensions, you'd probably want to move is_valid_point check here
-    pass
+    solution = []
+
+    p = first
+    for l in word:
+        if p.is_valid(puzzle) and get_point_value(puzzle, p) == l:
+            solution.append(p)
+            p = p.get_related(relation)
+        else:
+            raise WordNotFoundException
+
+    return solution
 
 
 def find_word(puzzle: list[list[str]], word: str) -> list[Point]:
@@ -57,19 +84,20 @@ def find_word(puzzle: list[list[str]], word: str) -> list[Point]:
                     if get_point_value(puzzle, p) == word[1]:
                         second = p
                         relation = get_relation(first, second)
-                        a = try_find(puzzle, first, relation, list(word))
-                        if get_points_values(puzzle, a) == list(word):
+                        try:
+                            a = try_find(puzzle, first, relation, list(word))
                             return a
-                        
-    raise WordNotFoundException
+                        except WordNotFoundException:
+                            continue
 
+    raise WordNotFoundException
 
 
 def get_surrounding(puzzle: list[list[str]], p: Point) -> list[Point]:
     points = []
     for r in range(p.r-1, p.r+2):
         for c in range(p.c-1, p.c+2):
-            if not (Point(r,c) == p) and is_valid_point(puzzle, Point(r, c)):
+            if not (Point(r,c) == p) and Point(r, c).is_valid(puzzle):
                 points.append(Point(r, c))
 
     return points
@@ -88,11 +116,9 @@ def main():
     puzzle = get_puzzle("./puzzle.txt")
     print(puzzle)
 
-    point = Point(1,2)
-    print(point.r)
 
-    for p in get_surrounding(puzzle, Point(0, 2)):
-        print(p)
-        print(get_relation(Point(0,2), p))
+    f = find_word(puzzle, "COT")
+    for p in f:
+        print(f"p: {p}, v: {get_point_value(puzzle, p)}")
 
 main()
