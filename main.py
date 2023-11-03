@@ -58,8 +58,8 @@ def get_relation(first: Point, second: Point) -> Relation:
         return Relation.UP_LEFT if first.r < second.c else Relation.UP_RIGHT
     
 
-
 def try_find(puzzle: list[list[str]], first: Point, relation: Relation, word: list[str]) -> list[Point]:
+    print(f"w: {word}")
     """This function will go as far as it can as long as the word matches."""
     # NOTE: If you wanted to make this project work for funky crossword dimensions, you'd probably want to move is_valid_point check here
     solution = []
@@ -69,6 +69,7 @@ def try_find(puzzle: list[list[str]], first: Point, relation: Relation, word: li
         if p.is_valid(puzzle) and get_point_value(puzzle, p) == l:
             solution.append(p)
             p = p.get_related(relation)
+            print(solution)
         else:
             raise WordNotFoundException
 
@@ -112,13 +113,29 @@ def get_puzzle(path: str) -> list[list[str]]:
 
     return board
 
+
+def word_search(puzzle: list[list[str]], wordlist: list[str]) -> list[list[Point]]:
+    r = []
+
+    for w in wordlist:
+        try:
+            r.append(find_word(puzzle, w))
+        except WordNotFoundException:
+            continue
+
+    return r
+
 def main():
     puzzle = get_puzzle("./puzzle.txt")
     print(puzzle)
 
+    wordlist = ["CAT", "COT", "DO"]
 
-    f = find_word(puzzle, "COT")
-    for p in f:
-        print(f"p: {p}, v: {get_point_value(puzzle, p)}")
+    solution = word_search(puzzle, wordlist)
+    for w in solution:
+        for p in w:
+            print(f"p: {p}, v: {get_point_value(puzzle, p)}")
+
+        print("---")
 
 main()
